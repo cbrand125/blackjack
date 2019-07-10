@@ -1,10 +1,15 @@
 class Card {
   constructor(rank, suit) {
     this.suit = suit;
-    this.rank = rank; // 2-10, 'J', 'Q', 'K', 'A'
+    this.rank = rank;
     this.value = this.calculateValue(rank);
   }
 
+  /**
+   * determines the blackjack point value of the card
+   * @param {string} rank of the card (i.e. A, J, 2, 10, ...)
+   * @return {number} the point value for this rank
+   */
   calculateValue(rank) {
     const rankVal = parseInt(rank);
     if (rankVal) return rankVal;
@@ -31,6 +36,8 @@ class Deck {
       'A'
     ];
     const suits = ['♠', '♦', '♥', '♣'];
+
+    // populate deck by creating a card for each combination of rank and suit
     this.cards = [];
     for (let i = 0; i < ranks.length; i++) {
       for (let j = 0; j < suits.length; j++) {
@@ -53,8 +60,8 @@ class Player {
     this.hand = [];
   }
 
-  takeCard(deck) {
-    this.hand.push(deck.draw());
+  takeCard(cardDeck) {
+    this.hand.push(cardDeck.draw());
   }
 
   calculateHandValue() {
@@ -68,30 +75,38 @@ class Player {
 
 const deck = new Deck();
 deck.shuffle();
-let dealer = new Player();
-dealer.takeCard(deck);
-dealer.takeCard(deck);
-let player = new Player();
-player.takeCard(deck);
-player.takeCard(deck);
+const currentDealer = new Player();
+currentDealer.takeCard(deck);
+currentDealer.takeCard(deck);
+const currentPlayer = new Player();
+currentPlayer.takeCard(deck);
+currentPlayer.takeCard(deck);
 
 console.clear();
 console.log(`♣♥♦♠ BLACKJACK ♠♦♥♣`);
 console.log(`===================\n\n`);
-console.log(`Dealer's Hand Worth ${dealer.calculateHandValue()}:`);
-console.log(`${dealer.handToString()}\n`);
-console.log(`Player's Hand Worth ${player.calculateHandValue()}:`);
-console.log(`${player.handToString()}\n`);
-console.log(`\n${resultToString(player, dealer)}\n`);
+console.log("DEALER'S HAND");
+console.log(`${currentDealer.handToString()}`);
+console.log(`Value: ${currentDealer.calculateHandValue()}\n`);
+console.log("PLAYER'S HAND");
+console.log(`${currentPlayer.handToString()}`);
+console.log(`Value: ${currentPlayer.calculateHandValue()}\n`);
+console.log(`\n${resultToString(currentPlayer, currentDealer)}\n`);
 
+/**
+ * determines the winner between a player and the dealer by returninig an output string
+ * @param {Player} player represents the current player playing
+ * @param {Player} dealer represents the current dealer playing
+ * @return {string} a printable message determining the winner of blackjack
+ */
 function resultToString(player, dealer) {
-  let playerVal = player.calculateHandValue();
-  let dealerVal = dealer.calculateHandValue();
+  const playerVal = player.calculateHandValue();
+  const dealerVal = dealer.calculateHandValue();
   if (playerVal > dealerVal) {
     return 'PLAYER WINS!';
-  } else if (playerVal < dealerVal) {
-    return 'DEALER WINS!';
-  } else {
-    return "IT'S A DRAW";
   }
+  if (playerVal < dealerVal) {
+    return 'DEALER WINS!';
+  }
+  return "IT'S A DRAW";
 }
