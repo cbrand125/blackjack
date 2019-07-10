@@ -46,10 +46,17 @@ class Deck {
     }
   }
 
+  /**
+   * shuffles this deck of cards, putting them in a random order
+   */
   shuffle() {
     this.cards.sort(() => Math.random() * 2 - 1);
   }
 
+  /**
+   * draws a card from this deck by removing it from the deck and returning it
+   * @return {Card} the card removed from this deck
+   */
   draw() {
     return this.cards.pop();
   }
@@ -60,14 +67,26 @@ class Player {
     this.hand = [];
   }
 
+  /**
+   * adds a card to the player's hand from a deck
+   * @param {Deck} cardDeck the deck of cards for the player to take from
+   */
   takeCard(cardDeck) {
     this.hand.push(cardDeck.draw());
   }
 
+  /**
+   * calculates the point value of this player's hand and returns that number
+   * @return {number} represents the total blackjack point value of this player's hand
+   */
   calculateHandValue() {
     return this.hand.reduce((total, curr) => total + curr.value, 0);
   }
 
+  /**
+   * represents the player's hand as a string and returns it
+   * @return {string} a printable representation of this player's current hand
+   */
   handToString() {
     return this.hand.map(card => `${card.rank}${card.suit}`).join(' ');
   }
