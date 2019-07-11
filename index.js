@@ -175,7 +175,7 @@ while (continuePlaying) {
 }
 
 /**
- * determines the winner between a player and the dealer by returninig an output string
+ * determines the winner between a player and the dealer by returning an output string
  * @param {Player} player represents the current player playing
  * @param {Player} dealer represents the current dealer playing
  * @return {string} a printable message determining the winner of blackjack
