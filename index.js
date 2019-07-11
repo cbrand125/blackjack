@@ -1,3 +1,5 @@
+const readlineSync = require('readline-sync');
+
 class Card {
   constructor(rank, suit) {
     this.suit = suit;
@@ -15,6 +17,14 @@ class Card {
     if (rankVal) return rankVal;
     if (rank === 'A') return 11;
     return 10;
+  }
+
+  /**
+   * represents this card as a string and returns it
+   * @return {string} representation of this card showing rank and suit
+   */
+  cardToString() {
+    return `${this.rank}${this.suit}`;
   }
 }
 
@@ -88,29 +98,81 @@ class Player {
    * @return {string} a printable representation of this player's current hand
    */
   handToString() {
-    return this.hand.map(card => `${card.rank}${card.suit}`).join(' ');
+    return this.hand.map(card => `${card.cardToString()}`).join(' ');
+  }
+
+  /**
+   * gets the last card added to this player's hand
+   * @return {Card} gets the last card added to this player's hand
+   */
+  getLastCard() {
+    return this.hand[this.hand.length - 1];
   }
 }
 
-const deck = new Deck();
-deck.shuffle();
-const currentDealer = new Player();
-currentDealer.takeCard(deck);
-currentDealer.takeCard(deck);
-const currentPlayer = new Player();
-currentPlayer.takeCard(deck);
-currentPlayer.takeCard(deck);
+let continuePlaying = true;
+while (continuePlaying) {
+  const deck = new Deck();
+  deck.shuffle();
+  const currentDealer = new Player();
+  currentDealer.takeCard(deck);
+  currentDealer.takeCard(deck);
+  const currentPlayer = new Player();
+  currentPlayer.takeCard(deck);
+  currentPlayer.takeCard(deck);
 
-console.clear();
-console.log(`♣♥♦♠ BLACKJACK ♠♦♥♣`);
-console.log(`===================\n\n`);
-console.log("DEALER'S HAND");
-console.log(`${currentDealer.handToString()}`);
-console.log(`Value: ${currentDealer.calculateHandValue()}\n`);
-console.log("PLAYER'S HAND");
-console.log(`${currentPlayer.handToString()}`);
-console.log(`Value: ${currentPlayer.calculateHandValue()}\n`);
-console.log(`\n${resultToString(currentPlayer, currentDealer)}\n`);
+  console.clear();
+  console.log(`♣♥♦♠ BLACKJACK ♠♦♥♣`);
+  console.log(`===================\n\n`);
+
+  console.log("DEALER'S HAND");
+  console.log(`${currentDealer.handToString()}`);
+  console.log(`Value: ${currentDealer.calculateHandValue()}\n`);
+
+  console.log("PLAYER'S HAND");
+  console.log(`${currentPlayer.handToString()}`);
+  console.log(`Value: ${currentPlayer.calculateHandValue()}\n`);
+
+  let takeHit = true;
+  while (takeHit) {
+    takeHit = readlineSync.keyInYNStrict('Would you like to hit?');
+    if (takeHit) {
+      currentPlayer.takeCard(deck);
+      console.log(
+        `\nPlayer takes a card: ${currentPlayer.getLastCard().cardToString()}`
+      );
+      console.log("\nPLAYER'S HAND");
+      console.log(`${currentPlayer.handToString()}`);
+      console.log(`Value: ${currentPlayer.calculateHandValue()}\n`);
+    }
+    if (currentPlayer.calculateHandValue() >= 21) {
+      takeHit = false;
+    }
+  }
+
+  const isPlayerBusted = currentPlayer.calculateHandValue() > 21;
+  if (isPlayerBusted) {
+    console.log('PLAYER BUST! DEALER WINS!');
+  } else {
+    while (currentDealer.calculateHandValue() <= 17) {
+      currentDealer.takeCard(deck);
+      console.log(
+        `\nDealer takes a card: ${currentDealer.getLastCard().cardToString()}`
+      );
+      console.log("\nDEALER'S HAND");
+      console.log(`${currentDealer.handToString()}`);
+      console.log(`Value: ${currentDealer.calculateHandValue()}\n`);
+    }
+
+    const isDealerBusted = currentDealer.calculateHandValue() > 21;
+    if (isDealerBusted) {
+      console.log('DEALER BUST! PLAYER WINS!');
+    } else {
+      console.log(`\n${resultToString(currentPlayer, currentDealer)}\n`);
+    }
+  }
+  continuePlaying = readlineSync.keyInYNStrict('Would you like to play again?');
+}
 
 /**
  * determines the winner between a player and the dealer by returninig an output string
